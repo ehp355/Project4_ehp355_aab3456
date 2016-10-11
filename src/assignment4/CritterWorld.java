@@ -12,6 +12,9 @@ public class CritterWorld {
 	public static List<Critter> getCritterPopulation(){
 		return population;
 	}
+	public static List<Critter> getCritterBabies(){
+		return babies;
+	}
 	
 }
 
