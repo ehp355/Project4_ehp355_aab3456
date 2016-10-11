@@ -1,15 +1,16 @@
 /* CRITTERS Critter.java
  * EE422C Project 4 submission by
  * Replace <...> with your actual data.
- * <Student1 Name>
- * <Student1 EID>
- * <Student1 5-digit Unique No.>
- * <Student2 Name>
- * <Student2 EID>
- * <Student2 5-digit Unique No.>
+ * Aaron Babber
+ * aab3456
+ * 16480
+ * Enrique Perez-Osborne
+ * ehp355
+ * 16465
  * Slip days used: <0>
  * Fall 2016
  */
+
 package assignment4;
 
 import java.util.List;
