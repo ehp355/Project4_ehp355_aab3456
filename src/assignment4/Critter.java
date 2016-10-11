@@ -14,6 +14,7 @@ package assignment4;
 
 import java.util.List;
 
+
 /* see the PDF for descriptions of the methods and fields in this class
  * you may add fields, methods or inner classes to Critter ONLY if you make your additions private
  * no new public, protected or default-package code or data can be added to Critter
@@ -24,6 +25,7 @@ public abstract class Critter {
 	private static String myPackage;
 	private	static List<Critter> population = new java.util.ArrayList<Critter>();
 	private static List<Critter> babies = new java.util.ArrayList<Critter>();
+	//world to keep track of critters
 
 	// Gets the package name.  This assumes that Critter and its subclasses are all in the same package.
 	static {
@@ -54,27 +56,47 @@ public abstract class Critter {
 		case 0: x_coord = x_coord+1;
 				break;
 		case 1: x_coord = x_coord+1;
-				y_coord = y_coord+1;
+				y_coord = y_coord-1;
 				break;
-		case 2: y_coord = y_coord+1;
+		case 2: y_coord = y_coord-1;
 				break;
 		case 3: x_coord = x_coord-1;
-				y_coord = y_coord+1;
+				y_coord = y_coord-1;
 				break;
 		case 4: x_coord = x_coord -1;
 				break;
 		case 5: x_coord = x_coord-1;
-				y_coord = y_coord-1;
+				y_coord = y_coord+1;
 				break;
-		case 6: y_coord = y_coord-1;
+		case 6: y_coord = y_coord+1;
 				break;
 		case 7: x_coord = x_coord +1;
-				y_coord = y_coord -1;
+				y_coord = y_coord +1;
 		}
 	}
 	
 	protected final void run(int direction) {
-		
+		switch(direction){
+		case 0: x_coord = x_coord+2;
+				break;
+		case 1: x_coord = x_coord+2;
+				y_coord = y_coord-2;
+				break;
+		case 2: y_coord = y_coord-2;
+				break;
+		case 3: x_coord = x_coord-2;
+				y_coord = y_coord-2;
+				break;
+		case 4: x_coord = x_coord -2;
+				break;
+		case 5: x_coord = x_coord-2;
+				y_coord = y_coord+2;
+				break;
+		case 6: y_coord = y_coord+2;
+				break;
+		case 7: x_coord = x_coord +2;
+				y_coord = y_coord +2;
+		}
 	}
 	
 	protected final void reproduce(Critter offspring, int direction) {
@@ -94,6 +116,26 @@ public abstract class Critter {
 	 * @throws InvalidCritterException
 	 */
 	public static void makeCritter(String critter_class_name) throws InvalidCritterException {
+		Class critterClass = null;
+		Critter newCritter = null;
+		try {
+			critterClass = Class.forName(critter_class_name);
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//FLAG 
+		try {
+			newCritter = (Critter) critterClass.newInstance();
+			CritterWorld.addCritter(newCritter);
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 	
 	/**
