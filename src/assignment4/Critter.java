@@ -73,6 +73,21 @@ public abstract class Critter {
 		case 7: x_coord = x_coord +1;
 				y_coord = y_coord +1;
 		}
+		
+		//If statements to check if the critter
+		//needs to be wrapped around the map
+		if(y_coord<0){
+			y_coord = Params.world_height+y_coord;
+		}else if(y_coord>Params.world_height){
+			y_coord = y_coord-Params.world_height;
+		}
+		
+		if(x_coord<0){
+			x_coord = Params.world_width+x_coord;
+		}else if(x_coord>Params.world_width){
+			x_coord = x_coord-Params.world_width;
+		}
+		
 	}
 	
 	protected final void run(int direction) {
@@ -97,6 +112,19 @@ public abstract class Critter {
 		case 7: x_coord = x_coord +2;
 				y_coord = y_coord +2;
 		}
+		//If statements to check if the critter
+				//needs to be wrapped around the map
+				if(y_coord<0){
+					y_coord = Params.world_height+y_coord;
+				}else if(y_coord>Params.world_height){
+					y_coord = y_coord-Params.world_height;
+				}
+				
+				if(x_coord<0){
+					x_coord = Params.world_width+x_coord;
+				}else if(x_coord>Params.world_width){
+					x_coord = x_coord-Params.world_width;
+				}
 	}
 	
 	protected final void reproduce(Critter offspring, int direction) {
@@ -127,6 +155,12 @@ public abstract class Critter {
 		//FLAG 
 		try {
 			newCritter = (Critter) critterClass.newInstance();
+			
+			newCritter.x_coord=Critter.getRandomInt(Params.world_width);
+			newCritter.y_coord=Critter.getRandomInt(Params.world_height);
+			
+			newCritter.energy=Params.start_energy;
+			
 			CritterWorld.addCritter(newCritter);
 		} catch (InstantiationException e) {
 			// TODO Auto-generated catch block
@@ -233,6 +267,13 @@ public abstract class Critter {
 	}
 	
 	public static void worldTimeStep() {
+		//gets list of current critters on the board
+		List<Critter> pop = CritterWorld.getCritterPopulation();
+		//for loop to go through each critter in population
+		//and call their individual doTimeStep
+		for(int i = 0; i < pop.size(); i++){
+			pop.get(i).doTimeStep();
+		}
 	}
 	
 	public static void displayWorld() {}
