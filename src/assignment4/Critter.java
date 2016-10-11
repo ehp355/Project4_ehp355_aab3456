@@ -281,9 +281,11 @@ public abstract class Critter {
 		
 		
 		for(int i = 0; i < pop.size();i++){
+			Critter c = pop.get(i);
+			
 			//Incorrect way to change energy for each critter.
 			//needs to be changed.
-			pop.get(i).energy = pop.get(i).energy-Params.rest_energy_cost;
+			c.TestCritter.setEnergy(c.TestCritter.getEnergy()-Params.rest_energy_cost);
 		}
 		
 		//Remove critters from pop who's energy<=0
