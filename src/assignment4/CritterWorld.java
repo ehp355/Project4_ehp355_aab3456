@@ -16,7 +16,7 @@ package assignment4;
 import java.util.*;
 import java.util.List;
 public class CritterWorld {
-	static int maxCrittersInSpot = 10;
+	static int maxCrittersInSpot = 100;
 	//board is a 2d ArrayList where the 1st dimension is a position on the board and the 2nd dimension is a list of 
 	// cirtters in that position
 	private static Critter[][] board = new Critter[Params.world_height*Params.world_width][maxCrittersInSpot];
@@ -103,6 +103,15 @@ public class CritterWorld {
 		}
 	}
 	
+	public static void checkSharePosition(Critter c, int x, int y){
+		int bPos = cartesianToBoard(x,y);
+		for(int i = 0; i < maxCrittersInSpot; i++){
+			if(board[bPos][i]!=null && board[bPos][i]!=c){
+				Critter.encounter(c,board[bPos][i]);
+			}
+		}
+	}
+	
 	
 	/**
 	 * method to draw board, including boarders and critters
@@ -140,7 +149,7 @@ public class CritterWorld {
 	
 	public static void stage1AddAlgaeCraig(){
 		//add 100 Algae to board
-		for(int i = 0; i < 100; i++){
+		for(int i = 0; i < 5; i++){
 			try{
 				Critter.makeCritter("Algae");
 			}catch(InvalidCritterException e){
@@ -148,7 +157,7 @@ public class CritterWorld {
 			}
 		}
 		
-		for(int i = 0; i < 25; i++){
+		for(int i = 0; i < 3; i++){
 			try{
 				Critter.makeCritter("Craig");
 			}catch(InvalidCritterException e){

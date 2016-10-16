@@ -72,19 +72,33 @@ public class Main {
         
         CritterWorld.stage1AddAlgaeCraig();
         
-        CritterWorld.displayWorld();
+        Critter.displayWorld();
         String userInput;
+        String[] user;
+        int userStepNum = 0;
         boolean userFlag = true;
         while(userFlag){
         	System.out.print("Command: ");
         	userInput = kb.nextLine();
+        	user = userInput.split(" ");
+        	if(user.length>1){
+        		userStepNum=Integer.parseInt(user[1]);
+        	}
+        	userInput = user[0];
         	
         	if(userInput.equals("quit")){
         		System.exit(0);
         	}else if(userInput.equals("show")){
-        		CritterWorld.displayWorld();
+        		Critter.displayWorld();
         	}else if(userInput.equals("step")){
-        		Critter.worldTimeStep();
+        		if(user.length>1){
+        			for(int i = 0; i < userStepNum; i++){
+        				Critter.worldTimeStep();
+        			}
+        		}else{
+        			Critter.worldTimeStep();
+        		}
+
         	}else if(userInput.equals("")){
         		
         	}else{

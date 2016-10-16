@@ -96,13 +96,13 @@ public abstract class Critter {
 		//needs to be wrapped around the map
 		if(y_coord<0){
 			y_coord = Params.world_height+y_coord;
-		}else if(y_coord>Params.world_height){
+		}else if(y_coord>Params.world_height-1){
 			y_coord = y_coord-Params.world_height;
 		}
 
 		if(x_coord<0){
 			x_coord = Params.world_width+x_coord;
-		}else if(x_coord>Params.world_width){
+		}else if(x_coord>Params.world_width-1){
 			x_coord = x_coord-Params.world_width;
 		}
 	}
@@ -278,8 +278,21 @@ public abstract class Critter {
 		for(int i = 0; i < pop.size(); i++){
 			pop.get(i).doTimeStep();
 		}
+		
+		//check for encounters(critters in the same spot)
+		for(int i = 0; i < pop.size(); i++){
+			CritterWorld.checkSharePosition(pop.get(i),pop.get(i).x_coord,pop.get(i).y_coord);
+		}
+		//refresh Algae
+		for(int i = 0; i < Params.refresh_algae_count;i++){
+			try{
+				makeCritter("Algae");
+			}catch(InvalidCritterException e){
+				
+			}
+		}
 
-
+		//SHOULD THIS BE DONE BEFORE OR AFTER BABIES ARE ADDED TO GENPOP?
 		for(int i = 0; i < pop.size();i++){
 			Critter c = pop.get(i);
 			c.energy = c.energy - Params.rest_energy_cost;
@@ -292,7 +305,7 @@ public abstract class Critter {
 				pop.remove(i);
 			}
 		}
-		
+		//Adds babies to general population
 		for(int i = 0; i<babies.size();i++){
 			CritterWorld.addCritter(babies.get(i), babies.get(i).x_coord, babies.get(i).y_coord);
 		}
@@ -301,6 +314,50 @@ public abstract class Critter {
 
 
 	}
+	
+	public static void encounter(Critter a, Critter b){
+		boolean aFights = a.fight(b.toString());
+		boolean bFights = b.fight(a.toString());
+		int aFightNumber;
+		int bFightNumber;
+		//checks if both have energy left and are in the still in the same position
+		if((a.energy>0&&b.energy>0)&&(CritterWorld.cartesianToBoard(a.x_coord, a.y_coord)==CritterWorld.cartesianToBoard(b.x_coord,b.y_coord))){
+			if(aFights){
+				aFightNumber=getRandomInt(a.energy);
+			}else{
+				aFightNumber=0;
+			}
+			if(bFights){
+				bFightNumber=getRandomInt(b.energy);
+			}else{
+				bFightNumber=0;
+			}
+			
+			if(aFightNumber == bFightNumber){
+				resolveFight(a,b);
+			}else if(aFightNumber > bFightNumber){
+				resolveFight(a,b);
+			}else if(aFightNumber>bFightNumber){
+				resolveFight(b,a);
+			}
+		}
+		
+	}
+	
+	/**
+	 * method to resolve who won the fight, the first critter parameter is the winner
+	 * and the second critter parameter is the loser
+	 * @param a
+	 * @param b
+	 */
+	public static void resolveFight(Critter a, Critter b){
+		
+		a.energy= a.energy+(b.energy/2);
+		b.energy = 0;
+		
+	}
 
-	public static void displayWorld() {}
+	public static void displayWorld() {
+		CritterWorld.displayWorld();
+		}
 }
