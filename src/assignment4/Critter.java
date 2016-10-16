@@ -14,6 +14,7 @@
 package assignment4;
 
 import java.util.List;
+import java.lang.Math;
 import java.util.*;
 
 /* see the PDF for descriptions of the methods and fields in this class
@@ -53,26 +54,42 @@ public abstract class Critter {
 	private int y_coord;
 
 	protected final void walk(int direction) {
+		CritterWorld.remove(this,x_coord,y_coord);
+		stepper(1,direction);
+		CritterWorld.move(this,x_coord,y_coord);
+		this.energy = this.energy-Params.walk_energy_cost;
+
+	}
+
+	protected final void run(int direction) {
+		CritterWorld.remove(this, x_coord, y_coord);
+		stepper(2,direction);
+		CritterWorld.move(this, x_coord, y_coord);
+		this.energy = this.energy-Params.run_energy_cost;
+	
+	}
+	
+	private void stepper(int step, int direction){
 		switch(direction){
-		case 0: x_coord = x_coord+1;
+		case 0: x_coord = x_coord+step;
 				break;
-		case 1: x_coord = x_coord+1;
-				y_coord = y_coord-1;
+		case 1: x_coord = x_coord+step;
+				y_coord = y_coord-step;
 				break;
-		case 2: y_coord = y_coord-1;
+		case 2: y_coord = y_coord-step;
 				break;
-		case 3: x_coord = x_coord-1;
-				y_coord = y_coord-1;
+		case 3: x_coord = x_coord-step;
+				y_coord = y_coord-step;
 				break;
-		case 4: x_coord = x_coord -1;
+		case 4: x_coord = x_coord -step;
 				break;
-		case 5: x_coord = x_coord-1;
-				y_coord = y_coord+1;
+		case 5: x_coord = x_coord-step;
+				y_coord = y_coord+step;
 				break;
-		case 6: y_coord = y_coord+1;
+		case 6: y_coord = y_coord+step;
 				break;
-		case 7: x_coord = x_coord +1;
-				y_coord = y_coord +1;
+		case 7: x_coord = x_coord +step;
+				y_coord = y_coord +step;
 		}
 
 		//If statements to check if the critter
@@ -88,47 +105,27 @@ public abstract class Critter {
 		}else if(x_coord>Params.world_width){
 			x_coord = x_coord-Params.world_width;
 		}
-
-	}
-
-	protected final void run(int direction) {
-		switch(direction){
-		case 0: x_coord = x_coord+2;
-				break;
-		case 1: x_coord = x_coord+2;
-				y_coord = y_coord-2;
-				break;
-		case 2: y_coord = y_coord-2;
-				break;
-		case 3: x_coord = x_coord-2;
-				y_coord = y_coord-2;
-				break;
-		case 4: x_coord = x_coord -2;
-				break;
-		case 5: x_coord = x_coord-2;
-				y_coord = y_coord+2;
-				break;
-		case 6: y_coord = y_coord+2;
-				break;
-		case 7: x_coord = x_coord +2;
-				y_coord = y_coord +2;
-		}
-		//If statements to check if the critter
-				//needs to be wrapped around the map
-				if(y_coord<0){
-					y_coord = Params.world_height+y_coord;
-				}else if(y_coord>Params.world_height){
-					y_coord = y_coord-Params.world_height;
-				}
-
-				if(x_coord<0){
-					x_coord = Params.world_width+x_coord;
-				}else if(x_coord>Params.world_width){
-					x_coord = x_coord-Params.world_width;
-				}
 	}
 
 	protected final void reproduce(Critter offspring, int direction) {
+		
+		if(this.energy>= Params.min_reproduce_energy){
+		
+			//create function to process offspring position based on
+			//parents current position and direction
+			offspring.stepper(1, direction);
+			
+			//set offspring energy
+			//and parent energy
+			offspring.energy=this.energy/2;
+			double argument = (double)this.energy/(double)2.0;
+			this.energy = (int)Math.ceil(argument);
+			babies.add(offspring);
+		
+		}else{
+			return;
+		
+		}
 	}
 
 	public abstract void doTimeStep();
@@ -157,12 +154,12 @@ public abstract class Critter {
 		try {
 			newCritter = (Critter) critterClass.newInstance();
 
-			newCritter.x_coord=Critter.getRandomInt(Params.world_width);
-			newCritter.y_coord=Critter.getRandomInt(Params.world_height);
+			newCritter.x_coord=Critter.getRandomInt(Params.world_width-1);
+			newCritter.y_coord=Critter.getRandomInt(Params.world_height-1);
 
 			newCritter.energy=Params.start_energy;
 
-			CritterWorld.addCritter(newCritter);
+			CritterWorld.addCritter(newCritter,newCritter.x_coord,newCritter.y_coord);
 		} catch (InstantiationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

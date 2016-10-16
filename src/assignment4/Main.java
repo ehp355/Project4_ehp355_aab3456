@@ -68,6 +68,8 @@ public class Main {
 
         /* Do not alter the code above for your submission. */
         /* Write your code below. */
+        CritterWorld.stage1AddAlgaeCraig();
+        CritterWorld.displayWorld();
 
         System.out.println("GLHF");
 
