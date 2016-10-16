@@ -54,9 +54,9 @@ public abstract class Critter {
 	private int y_coord;
 
 	protected final void walk(int direction) {
-		CritterWorld.remove(this,x_coord,y_coord);
+		CritterWorld.remove(this,this.x_coord,this.y_coord);
 		stepper(1,direction);
-		CritterWorld.move(this,x_coord,y_coord);
+		CritterWorld.move(this,this.x_coord,this.y_coord);
 		this.energy = this.energy-Params.walk_energy_cost;
 
 	}
@@ -143,30 +143,36 @@ public abstract class Critter {
 	 */
 	public static void makeCritter(String critter_class_name) throws InvalidCritterException {
 		Class critterClass = null;
-		Critter newCritter = null;
+		//Critter newCritter = null;
 		try {
-			critterClass = Class.forName(critter_class_name);
+			String packageClass = myPackage+"."+critter_class_name;
+			critterClass = Class.forName(packageClass);
+			Object newCritter = critterClass.newInstance();
+			
+			if(!(newCritter instanceof Critter)){
+				throw new InvalidCritterException(critter_class_name);
+			}
+			Critter c = (Critter)newCritter;
+			c.x_coord=Critter.getRandomInt(Params.world_width-1);
+			c.y_coord=Critter.getRandomInt(Params.world_height-1);
+
+			c.energy=Params.start_energy;
+			
+			CritterWorld.addCritter(c,c.x_coord,c.y_coord);
+			
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		//FLAG
-		try {
-			newCritter = (Critter) critterClass.newInstance();
-
-			newCritter.x_coord=Critter.getRandomInt(Params.world_width-1);
-			newCritter.y_coord=Critter.getRandomInt(Params.world_height-1);
-
-			newCritter.energy=Params.start_energy;
-
-			CritterWorld.addCritter(newCritter,newCritter.x_coord,newCritter.y_coord);
 		} catch (InstantiationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch(Exception e){
+			e.printStackTrace();
 		}
+
 
 	}
 
@@ -273,24 +279,25 @@ public abstract class Critter {
 			pop.get(i).doTimeStep();
 		}
 
-		ArrayList[] al = new ArrayList[CritterWorld.getCritterPopulation().size()];
-
-
 
 		for(int i = 0; i < pop.size();i++){
 			Critter c = pop.get(i);
-
-			//Incorrect way to change energy for each critter.
-			//needs to be changed.
-			//c.TestCritter.setEnergy(c.TestCritter.getEnergy()-Params.rest_energy_cost);
+			c.energy = c.energy - Params.rest_energy_cost;
 		}
 
 		//Remove critters from pop who's energy<=0
 		for(int i = 0; i <pop.size();i++){
 			if(pop.get(i).getEnergy()<=0){
+				CritterWorld.remove(pop.get(i), pop.get(i).x_coord, pop.get(i).y_coord);
 				pop.remove(i);
 			}
 		}
+		
+		for(int i = 0; i<babies.size();i++){
+			CritterWorld.addCritter(babies.get(i), babies.get(i).x_coord, babies.get(i).y_coord);
+		}
+		
+		babies.clear();
 
 
 	}

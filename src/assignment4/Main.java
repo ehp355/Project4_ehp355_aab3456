@@ -68,10 +68,32 @@ public class Main {
 
         /* Do not alter the code above for your submission. */
         /* Write your code below. */
+        //CritterWorld.stage1AddAlgaeCraig();
+        
         CritterWorld.stage1AddAlgaeCraig();
+        
         CritterWorld.displayWorld();
+        String userInput;
+        boolean userFlag = true;
+        while(userFlag){
+        	System.out.print("Command: ");
+        	userInput = kb.nextLine();
+        	
+        	if(userInput.equals("quit")){
+        		System.exit(0);
+        	}else if(userInput.equals("show")){
+        		CritterWorld.displayWorld();
+        	}else if(userInput.equals("step")){
+        		Critter.worldTimeStep();
+        	}else if(userInput.equals("")){
+        		
+        	}else{
+        		System.out.println("Incorrect input");
+        	}
+        	
+        }
 
-        System.out.println("GLHF");
+        //System.out.println("GLHF");
 
         /* Write your code above */
         System.out.flush();

@@ -26,6 +26,7 @@ public class CritterWorld {
 	
 
 	public static void addCritter(Critter c, int x, int y){
+		
 		population.add(c);
 		addCritterToBoard(c , x, y);
 	}
@@ -68,16 +69,30 @@ public class CritterWorld {
 		return bpos;
 	}
 	
+	/**
+	 * method to delete critter in 2d array. Used mostly in walk and run
+	 * to delete old self in 2d aray and then placed back in 2d array 
+	 * after new x and y have been created
+	 * @param c
+	 * @param x
+	 * @param y
+	 */
 	public static void remove(Critter c, int x, int y){
 		int bPos = cartesianToBoard(x,y);
 		for(int i = 0; i < maxCrittersInSpot; i++){
-			if(c == (Critter)board[bPos][i]){
+			if(c == board[bPos][i]){
 				board[bPos][i] = null;
 				break;
 			}
 		}
 	}
 	
+	/**
+	 * method that move critter in the 2d critter array
+	 * @param c
+	 * @param x
+	 * @param y
+	 */
 	public static void move(Critter c, int x, int y){
 		int bPos = cartesianToBoard(x,y);
 		for(int i = 0; i < maxCrittersInSpot; i++){
@@ -120,17 +135,25 @@ public class CritterWorld {
 		for(int i = 0; i < Params.world_width;i++){
 			System.out.print("-");
 		}
-		System.out.print("+");
+		System.out.println("+");
 	}
 	
 	public static void stage1AddAlgaeCraig(){
 		//add 100 Algae to board
 		for(int i = 0; i < 100; i++){
-			addCritter(new Algae(),Critter.getRandomInt(Params.world_width-1),Critter.getRandomInt(Params.world_height-1));
+			try{
+				Critter.makeCritter("Algae");
+			}catch(InvalidCritterException e){
+				
+			}
 		}
 		
 		for(int i = 0; i < 25; i++){
-			addCritter(new Craig(), Critter.getRandomInt(Params.world_width-1), Critter.getRandomInt(Params.world_height-1));
+			try{
+				Critter.makeCritter("Craig");
+			}catch(InvalidCritterException e){
+				
+			}
 		}
 		
 	}
