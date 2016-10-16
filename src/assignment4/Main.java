@@ -98,7 +98,10 @@ public class Main {
         		}else{
         			Critter.worldTimeStep();
         		}
-
+        	}else if(userInput.equals("seed")){
+        		if(user.length>1){
+        			Critter.setSeed(userStepNum);
+        		}
         	}else if(userInput.equals("")){
         		
         	}else{
