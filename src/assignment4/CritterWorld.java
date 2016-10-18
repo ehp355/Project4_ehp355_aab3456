@@ -22,14 +22,17 @@ public class CritterWorld {
 	// critters in that position
 	private static Critter[][] board = new Critter[Params.world_height*Params.world_width][maxCrittersInSpot];
 	
+	
 	// TODO: Find a way to make a dynamic board array
 
-	// List of all Critter instances
-	// Simply a list of all critters - no ordering
+	// List of all Critter instances with no particular ordering
 	private	static List<Critter> population = new java.util.ArrayList<Critter>();
 	
 	// List of all babies (not used)
 	private static List<Critter> babies = new java.util.ArrayList<Critter>();
+	
+	// List of all Critters who have called walk() or run() in a time step
+	private static List<Critter> haveMoved = new java.util.ArrayList<Critter>();
 	
 
 	public static void addCritter(Critter c, int x, int y){
@@ -48,8 +51,8 @@ public class CritterWorld {
 	 * any critters that may already in that position
 	 * @param c
 	 */
-	public static void addCritterToBoard(Critter c,int x ,int y){
-		
+	public static void addCritterToBoard(Critter c,int x ,int y)
+	{	
 		int boardposition = cartesianToBoard(x,y);
 		for(int i = 0; i < maxCrittersInSpot; i++){
 			if(board[boardposition][i]==null){
@@ -58,6 +61,50 @@ public class CritterWorld {
 			}
 		}
 		
+	}
+	
+	/**
+	 * This method adds a Critter to the list haveMoved. It is
+	 * called whenever a Critter instance calls walk() or run()
+	 * in a time step.
+	 * 
+	 * @param critter Critter instance to be added to haveMoved
+	 */
+	public static void addCritterToMoved(Critter critter) 
+	{
+		haveMoved.add(critter);
+	}
+	
+	/**
+	 * This method checks if a given Critter has moved in a time step.
+	 * We use a for-each loop rather than the ArrayList contains() 
+	 * method, as that would require overriding the default equals() method
+	 * for Critter (which is public).
+	 * 
+	 * @param critter the instance that is to be checked
+	 * @return true if critter is in haveMoved and false otherwise
+	 */
+	public static boolean checkIfMoved(Critter critter)
+	{
+		/* TODO: Determine whether this works with subclasses of Critter,
+		 * as casting might have an effect on the reference.
+		 */
+		for (Critter c : haveMoved) {
+			if (c == critter) {		// Intentionally comparing references
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * This method clears the list haveMoved. It is to be called at the 
+	 * end of a time step.
+	 */
+	public static void clearMoved()
+	{
+		haveMoved.clear();
 	}
 	
 	/**

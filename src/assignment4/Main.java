@@ -70,15 +70,18 @@ public class Main {
         /* Write your code below. */
         //CritterWorld.stage1AddAlgaeCraig();
         
+        /* TODO: Resolve issue where 3 Craigs and 5 algae 
+         * don't show up every time
+         */
         CritterWorld.stage1AddAlgaeCraig();
         
-        Critter.displayWorld();
+        // Critter.displayWorld();
         String userInput;
         String[] user;
         int userStepNum = 0;
         boolean userFlag = true;
         while(userFlag){
-        	System.out.print("Command: ");
+        	System.out.print("critters> ");
         	userInput = kb.nextLine();
         	user = userInput.split(" ");
         	if(user.length>1){
@@ -87,7 +90,11 @@ public class Main {
         	userInput = user[0];
         	
         	if(userInput.equals("quit")){
-        		System.exit(0);
+        		// System.exit(0);
+        		/* According to piazza, we shouldn't use System.exit()
+        		 * to exit the program.
+        		 */
+        		break;
         	}else if(userInput.equals("show")){
         		Critter.displayWorld();
         	}else if(userInput.equals("step")){

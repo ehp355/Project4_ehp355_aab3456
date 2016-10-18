@@ -155,7 +155,7 @@ public abstract class Critter {
 	 * @throws InvalidCritterException
 	 */
 	public static void makeCritter(String critter_class_name) throws InvalidCritterException {
-		Class critterClass = null;
+		Class<?> critterClass = null;
 		//Critter newCritter = null;
 		try {
 			String packageClass = myPackage+"."+critter_class_name;
@@ -172,15 +172,13 @@ public abstract class Critter {
 			c.energy=Params.start_energy;
 			
 			CritterWorld.addCritter(c,c.x_coord,c.y_coord);
-			
+		
+		// TODO Handle exceptions as specified in directions for controller
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch(Exception e){
 			e.printStackTrace();
