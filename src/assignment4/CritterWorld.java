@@ -16,15 +16,14 @@ package assignment4;
 import java.util.*;
 import java.util.List;
 public class CritterWorld {
-	// TODO: To make it general, set maxCrittersInSpot to Params.world_height*Params.world_width
+	
 	static int maxCrittersInSpot = 100;
-	// board is a 2d ArrayList where the 1st dimension is a position on the board and the 2nd dimension is a list of 
-	// critters in that position
+
+	// board is a 2d ArrayList where the 1st dimension is a position on the board 
+	// and the 2nd dimension is a list of critters in that position
+	// TODO: Make a dynamic board array
 	private static Critter[][] board = new Critter[Params.world_height*Params.world_width][maxCrittersInSpot];
 	
-	
-	// TODO: Find a way to make a dynamic board array
-
 	// List of all Critter instances with no particular ordering
 	private	static List<Critter> population = new java.util.ArrayList<Critter>();
 	
@@ -195,7 +194,7 @@ public class CritterWorld {
 		for(int i = 0; i < 5; i++){
 			try{
 				Critter.makeCritter("Algae");
-			}catch(InvalidCritterException e){
+			}catch(Exception e){
 				
 			}
 		}
@@ -203,8 +202,20 @@ public class CritterWorld {
 		for(int i = 0; i < 3; i++){
 			try{
 				Critter.makeCritter("Craig");
-			}catch(InvalidCritterException e){
+			}catch(Exception e){
 				
+			}
+		}
+		
+	}
+	
+	public static void clearBoard()
+	{
+		int numSquares = Params.world_height*Params.world_width;
+		
+		for (int i = 0; i < numSquares; i++) {
+			for (int j = 0; j < maxCrittersInSpot; j++) {
+				board[i][j] = null;
 			}
 		}
 		

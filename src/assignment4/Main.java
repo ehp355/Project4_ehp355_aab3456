@@ -12,8 +12,10 @@
  */
 
 package assignment4; // cannot be in default package
+import java.util.List;
 import java.util.Scanner;
 import java.io.*;
+import java.lang.reflect.Method;
 
 /*
  * Usage: java <pkgname>.Main <input file> test
@@ -69,51 +71,135 @@ public class Main {
         /* Do not alter the code above for your submission. */
         /* Write your code below. */
         
-        //CritterWorld.stage1AddAlgaeCraig();
+        // The world should start empty
         
-        /* TODO: Resolve issue where 3 Craigs and 5 algae 
-         * don't show up every time
-         */
-        CritterWorld.stage1AddAlgaeCraig();
-        
-        // Critter.displayWorld();
-        String userInput;
+        String fullInput = null;
+        String command;
         String[] user;
-        int userStepNum = 0;
-        boolean userFlag = true;
-        while(userFlag){
-        	System.out.print("critters> ");
-        	userInput = kb.nextLine();
-        	user = userInput.split(" ");
-        	if(user.length>1){
-        		userStepNum=Integer.parseInt(user[1]);
-        	}
-        	userInput = user[0];
+        int countNum = 0;
+        int seedNum = 0;
+        boolean invalidCommand = false;
+        boolean exceptionLikeCommand = false;
+        
+        // DONE: Catch any exception in while loop body
+        while(true){
         	
-        	if(userInput.equals("quit")){
-        		// System.exit(0);
-        		/* According to piazza, we shouldn't use System.exit()
-        		 * to exit the program.
-        		 */
-        		break;
-        	}else if(userInput.equals("show")){
-        		Critter.displayWorld();
-        	}else if(userInput.equals("step")){
-        		if(user.length>1){
-        			for(int i = 0; i < userStepNum; i++){
-        				Critter.worldTimeStep();
-        			}
-        		}else{
-        			Critter.worldTimeStep();
-        		}
-        	}else if(userInput.equals("seed")){
-        		if(user.length>1){
-        			Critter.setSeed(userStepNum);
-        		}
-        	}else if(userInput.equals("")){
-        		
-        	}else{
-        		System.out.println("Incorrect input");
+        	try {
+	        	System.out.print("critters> ");
+	        	fullInput = kb.nextLine();
+	        	
+	        	/* Divides the input into parts and stores the results in an array.
+	    	     * The regex "\\s+" splits the input String using any whitespace 
+	    	     * character (the \\s part) as a delimiter. The '+' character is a 
+	    	     * quantifier for "one or more times".
+	    	     */
+	        	user = fullInput.split("\\s+");
+	        	command = user[0];
+	        	
+	        	if (command.equals("quit")) {
+	        		if (user.length == 1) {
+		        		// System.exit(0);
+		        		/* According to piazza, we shouldn't use System.exit()
+		        		 * to exit the program.
+		        		 */
+		        		break;
+	        		}
+	        		else {
+	        			exceptionLikeCommand = true;
+	        		}
+	        	}
+	        	
+	        	else if (command.equals("show")) {
+	        		if (user.length == 1) {
+	        			Critter.displayWorld();
+	        		}
+	        		else {
+	        			exceptionLikeCommand = true;
+	        		}
+	        	}
+	        	
+	        	else if (command.equals("step")) {
+	        		if (user.length == 1) {
+	        			Critter.worldTimeStep();
+	        		}
+	        		else if (user.length == 2) {
+	        			countNum = Integer.parseInt(user[1]);
+	        			for (int i = 0; i < countNum; i++) {
+	        				Critter.worldTimeStep();
+	        			}	
+	        		}
+	        		else {
+	        			exceptionLikeCommand = true;
+	        		}
+	        	}
+	        	
+	        	// TODO: Ask how to handle missing command arguments
+	        	else if (command.equals("seed")) {
+	        		if (user.length == 2) {
+	        			seedNum = Integer.parseInt(user[1]);
+	        			Critter.setSeed(seedNum);
+	        		}
+	        		else {
+	        			exceptionLikeCommand = true;
+	        		}
+	        	}
+	        	
+	        	else if (command.equals("make")) {
+	        		if (user.length == 2) {
+	        			String className = user[1];
+	        			Critter.makeCritter(className);
+	        		}
+	        		else if (user.length == 3) {
+	        			String className = user[1];
+	        			countNum = Integer.parseInt(user[2]);
+	        			for (int i = 0; i < countNum; i++) {
+	        				Critter.makeCritter(className);
+	        			}
+	        		}
+	        		else {
+	        			exceptionLikeCommand = true;
+	        		}
+	        	}
+	        	
+	        	/* TODO: Determine what to do if a subclass doesn't implement runStats.
+	        	 * Does the super's runStats method get invoked?
+	        	 */
+	        	else if (command.equals("stats")) {
+	        		if (user.length == 2) {
+	        			Class<?> critterClass = null;
+	        			String className = user[1];		// Must be concrete (test in getInstances())
+	        			String fullName = myPackage + "." + className;
+	        			
+	        			critterClass = Class.forName(fullName);		// Step 1
+	        			List<Critter> critInstances = Critter.getInstances(className);	// Step 2
+	        			Class<?>[] types = {List.class};	// Step 3 (?)
+	        			Method runStatsMethod = critterClass.getMethod("runStats", types);	// Step 4
+	        			runStatsMethod.invoke(null, critInstances);		// Step 5
+	        		}
+	        		else {
+	        			exceptionLikeCommand = true;
+	        		}	
+	        	}
+	        	
+	        	/* The else statement handles invalid commands and also the 
+	        	 * case when the user enters nothing. Something illegal is 
+	        	 * either "exception like" or "invalid", but not both.
+	        	 */
+	        	else{
+	        		invalidCommand = true;
+	        	}
+	        	
+	        	// TODO: Determine whether this should be on a new line
+	        	if (invalidCommand) {
+	        		System.out.println("invalid command: " + fullInput);
+	        	}
+	        	else if (exceptionLikeCommand) {
+	        		System.out.println("error processing: " + fullInput);
+	        	}
+        	}
+        	
+        	catch (Exception e) {
+        		System.out.println("error processing: " + fullInput);
         	}
         	
         }

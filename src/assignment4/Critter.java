@@ -13,7 +13,6 @@
 
 package assignment4;
 
-import java.util.List;
 import java.lang.Math;
 import java.util.*;
 
@@ -163,36 +162,49 @@ public abstract class Critter {
 	 * @param critter_class_name
 	 * @throws InvalidCritterException
 	 */
-	public static void makeCritter(String critter_class_name) throws InvalidCritterException {
+	public static void makeCritter(String critter_class_name) throws InvalidCritterException
+	{
 		Class<?> critterClass = null;
-		//Critter newCritter = null;
-		try {
-			String packageClass = myPackage+"."+critter_class_name;
-			critterClass = Class.forName(packageClass);		// Need fully-qualified name
-			Object newCritter = critterClass.newInstance();	// newInstance() returns an object of type Object
-			
-			if(!(newCritter instanceof Critter)){
-				throw new InvalidCritterException(critter_class_name);
-			}
-			Critter c = (Critter)newCritter;
-			c.x_coord=Critter.getRandomInt(Params.world_width-1);
-			c.y_coord=Critter.getRandomInt(Params.world_height-1);
-
-			c.energy=Params.start_energy;
-			
-			CritterWorld.addCritter(c,c.x_coord,c.y_coord);
+		String packageClass = myPackage + "." + critter_class_name;
 		
-		// TODO Handle exceptions as specified in directions for controller
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch(Exception e){
-			e.printStackTrace();
+		/* We must throw an InvalidCritterException when catching any other
+		 * exception in this method.
+		 * 
+		 * TODO: Double-check throwing InvalidCritterException here
+		 */
+		try {
+			// Need fully-qualified name
+			critterClass = Class.forName(packageClass);
+		} 
+		catch (ClassNotFoundException e) {
+			// Use empty strings for InvalidCritterException (check Piazza)
+			throw new InvalidCritterException("");
 		}
-
+		
+		// newInstance() returns an object of type Object
+		Object newCritter;
+		
+		try {
+			newCritter = critterClass.newInstance();
+		} 
+		catch (InstantiationException e) {
+			throw new InvalidCritterException("");
+		} 
+		catch (IllegalAccessException e) {
+			throw new InvalidCritterException("");
+		}	
+		
+		if(!(newCritter instanceof Critter)){
+			throw new InvalidCritterException("");
+		}
+		
+		// TODO: Test for abstract vs. concrete classes
+		
+		Critter c = (Critter)newCritter;
+		c.x_coord=Critter.getRandomInt(Params.world_width-1);
+		c.y_coord=Critter.getRandomInt(Params.world_height-1);
+		c.energy=Params.start_energy;
+		CritterWorld.addCritter(c,c.x_coord,c.y_coord);
 	}
 
 	/**
@@ -201,20 +213,20 @@ public abstract class Critter {
 	 * @return List of Critters.
 	 * @throws InvalidCritterException
 	 */
-	public static List<Critter> getInstances(String critter_class_name) throws InvalidCritterException 
+	public static List<Critter> getInstances(String critter_class_name) throws InvalidCritterException
 	{
 		List<Critter> result = new java.util.ArrayList<Critter>();
 		List<Critter> population = CritterWorld.getCritterPopulation();
 		Class<?> critterClass = null;
 		String packageClass = myPackage + "." + critter_class_name;
 		
-		/* TODO: By having a try/catch block, the code will continue to proceed.
-		 * Determine if we should throw an exception instead.
-		 */
+		// TODO: Double-check throwing ICE here
+		// TODO: Test for abstract vs. concrete classes
 		try {
 			critterClass = Class.forName(packageClass);
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+		} 
+		catch (ClassNotFoundException e) {
+			throw new InvalidCritterException("");
 		}
 		
 		/* The isAssignableFrom method determines if the class or interface represented by 
@@ -222,7 +234,7 @@ public abstract class Critter {
 		 * the class or interface represented by critterClass.
 		 */
 		if (!Critter.class.isAssignableFrom(critterClass)) {
-			throw new InvalidCritterException(critter_class_name);
+			throw new InvalidCritterException("");
 		}
 		
 		/* The class Class's isInstance() method is the dynamic equivalent of the
@@ -352,8 +364,15 @@ public abstract class Critter {
 	/**
 	 * Clear the world of all critters, dead and alive
 	 */
-	public static void clearWorld() {
-		// TODO: Write this function
+	public static void clearWorld() 
+	{
+		// DONE: Write this function
+		babies.clear();
+		// This should return the reference of the private variable
+		List<Critter> population = CritterWorld.getCritterPopulation();
+		population.clear();		
+		CritterWorld.clearMoved();
+		CritterWorld.clearBoard();
 	}
 
 	public static void worldTimeStep() {
@@ -375,11 +394,12 @@ public abstract class Critter {
 			c.energy = c.energy - Params.rest_energy_cost;
 		}
 		
-		// refresh Algae
+		// Refresh Algae
+		// TODO: Determine how to throw ICE in this case
 		for(int i = 0; i < Params.refresh_algae_count;i++){
 			try{
 				makeCritter("Algae");
-			}catch(InvalidCritterException e){
+			}catch(Exception e){
 				
 			}
 		}
