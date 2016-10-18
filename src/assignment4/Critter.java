@@ -48,7 +48,7 @@ public abstract class Critter {
 	}
 
 
-	/* a one-character long string that visually depicts your critter in the ASCII interface */
+	/* A one-character long string that visually depicts your critter in the ASCII interface */
 	public String toString() { return ""; }
 
 	private int energy = 0;
@@ -57,20 +57,28 @@ public abstract class Critter {
 	private int x_coord;
 	private int y_coord;
 
-	protected final void walk(int direction) {
-		CritterWorld.remove(this,this.x_coord,this.y_coord);
-		stepper(1,direction);
-		CritterWorld.addCritterToBoard(this,this.x_coord,this.y_coord);
+	protected final void walk(int direction) 
+	{	
+		if (!CritterWorld.checkIfMoved(this)) {
+			CritterWorld.remove(this, this.x_coord, this.y_coord);
+			stepper(1, direction);
+			CritterWorld.addCritterToBoard(this, this.x_coord, this.y_coord);
+			CritterWorld.addCritterToMoved(this);
+		}
+		
 		this.energy = this.energy-Params.walk_energy_cost;
-
 	}
 
-	protected final void run(int direction) {
-		CritterWorld.remove(this, x_coord, y_coord);
-		stepper(2,direction);
-		CritterWorld.addCritterToBoard(this, x_coord, y_coord);
+	protected final void run(int direction) 
+	{
+		if (!CritterWorld.checkIfMoved(this)) {
+			CritterWorld.remove(this, x_coord, y_coord);
+			stepper(2, direction);
+			CritterWorld.addCritterToBoard(this, x_coord, y_coord);
+			CritterWorld.addCritterToMoved(this);
+		}
+		
 		this.energy = this.energy-Params.run_energy_cost;
-	
 	}
 	
 	private void stepper(int step, int direction){
@@ -96,8 +104,9 @@ public abstract class Critter {
 				y_coord = y_coord+step;
 		}
 
-		//If statements to check if the critter
-		//needs to be wrapped around the map
+		/* If statements to check if the critter
+		 * needs to be wrapped around the map
+		 */
 		if(y_coord<0){
 			y_coord = Params.world_height+y_coord;
 		}else if(y_coord>Params.world_height-1){
@@ -192,9 +201,42 @@ public abstract class Critter {
 	 * @return List of Critters.
 	 * @throws InvalidCritterException
 	 */
-	public static List<Critter> getInstances(String critter_class_name) throws InvalidCritterException {
+	public static List<Critter> getInstances(String critter_class_name) throws InvalidCritterException 
+	{
 		List<Critter> result = new java.util.ArrayList<Critter>();
-
+		List<Critter> population = CritterWorld.getCritterPopulation();
+		Class<?> critterClass = null;
+		String packageClass = myPackage + "." + critter_class_name;
+		
+		/* TODO: By having a try/catch block, the code will continue to proceed.
+		 * Determine if we should throw an exception instead.
+		 */
+		try {
+			critterClass = Class.forName(packageClass);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		
+		/* The isAssignableFrom method determines if the class or interface represented by 
+		 * the Critter.class object is either the same as, or is a superclass or superinterface of, 
+		 * the class or interface represented by critterClass.
+		 */
+		if (!Critter.class.isAssignableFrom(critterClass)) {
+			throw new InvalidCritterException(critter_class_name);
+		}
+		
+		/* The class Class's isInstance() method is the dynamic equivalent of the
+		 * instanceof operator. It returns true if the specified argument is an  
+		 * instance of the represented class (or of any of its subclasses). We use it
+		 * because the instanceof operator does not work for types evaluated at run
+		 * time.
+		 */
+		for (Critter critter : population) {
+			if (critterClass.isInstance(critter)) {
+				result.add(critter);
+			}
+		}
+		
 		return result;
 	}
 
@@ -315,15 +357,15 @@ public abstract class Critter {
 	}
 
 	public static void worldTimeStep() {
-		//gets list of current critters on the board
+		// gets list of current critters on the board
 		List<Critter> pop = CritterWorld.getCritterPopulation();
-		//for loop to go through each critter in population
-		//and call their individual doTimeStep
+		// for loop to go through each critter in population
+		// and call their individual doTimeStep
 		for(int i = 0; i < pop.size(); i++){
 			pop.get(i).doTimeStep();
 		}
 		
-		//check for encounters(critters in the same spot)
+		// check for encounters(critters in the same spot)
 		for(int i = 0; i < pop.size(); i++){
 			CritterWorld.checkSharePosition(pop.get(i),pop.get(i).x_coord,pop.get(i).y_coord);
 		}
@@ -333,7 +375,7 @@ public abstract class Critter {
 			c.energy = c.energy - Params.rest_energy_cost;
 		}
 		
-		//refresh Algae
+		// refresh Algae
 		for(int i = 0; i < Params.refresh_algae_count;i++){
 			try{
 				makeCritter("Algae");
@@ -342,7 +384,7 @@ public abstract class Critter {
 			}
 		}
 
-		//Remove critters from pop who's energy<=0
+		// Remove critters from pop who's energy<=0
 		for(int i = 0; i <pop.size();i++){
 			if(pop.get(i).getEnergy()<=0){
 				CritterWorld.remove(pop.get(i), pop.get(i).x_coord, pop.get(i).y_coord);
@@ -350,11 +392,15 @@ public abstract class Critter {
 			}
 		}
 		
-		//Adds babies to general population
+		// Adds babies to general population
 		for(int i = 0; i<babies.size();i++){
 			CritterWorld.addCritter(babies.get(i), babies.get(i).x_coord, babies.get(i).y_coord);
 		}
 		
+		// Clear the list of Critters that have moved
+		CritterWorld.clearMoved();
+		
+		// Clear the list of babies
 		babies.clear();
 
 	}
@@ -365,7 +411,7 @@ public abstract class Critter {
 		int aFightNumber;
 		int bFightNumber;
 		//checks if both have energy left and are in the still in the same position
-		if((a.energy>0&&b.energy>0)&&(CritterWorld.cartesianToBoard(a.x_coord, a.y_coord) == 
+		if((a.energy > 0 && b.energy > 0) && (CritterWorld.cartesianToBoard(a.x_coord, a.y_coord) == 
 				CritterWorld.cartesianToBoard(b.x_coord,b.y_coord)))
 		{
 			if(aFights){
@@ -391,19 +437,19 @@ public abstract class Critter {
 	}
 	
 	/**
-	 * method to resolve who won the fight, the first critter parameter is the winner
-	 * and the second critter parameter is the loser
-	 * @param winner
-	 * @param loser
+	 * Method to resolve who won the fight
+	 * 
+	 * @param winner the winning Critter in a fight
+	 * @param loser the losing Critter in a fight
 	 */
-	public static void resolveFight(Critter winner, Critter loser){
-		
-		winner.energy= winner.energy+(loser.energy/2);
-		loser.energy = 0;
-		
+	public static void resolveFight(Critter winner, Critter loser)
+	{	
+		winner.energy = winner.energy + (loser.energy/2);
+		loser.energy = 0;	
 	}
 
-	public static void displayWorld() {
+	public static void displayWorld() 
+	{
 		CritterWorld.displayWorld();
-		}
+	}
 }
