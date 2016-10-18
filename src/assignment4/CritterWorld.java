@@ -16,19 +16,25 @@ package assignment4;
 import java.util.*;
 import java.util.List;
 public class CritterWorld {
+	// TODO: To make it general, set maxCrittersInSpot to Params.world_height*Params.world_width
 	static int maxCrittersInSpot = 100;
-	//board is a 2d ArrayList where the 1st dimension is a position on the board and the 2nd dimension is a list of 
-	// cirtters in that position
+	// board is a 2d ArrayList where the 1st dimension is a position on the board and the 2nd dimension is a list of 
+	// critters in that position
 	private static Critter[][] board = new Critter[Params.world_height*Params.world_width][maxCrittersInSpot];
+	
+	// TODO: Find a way to make a dynamic board array
 
+	// List of all Critter instances
+	// Simply a list of all critters - no ordering
 	private	static List<Critter> population = new java.util.ArrayList<Critter>();
+	
+	// List of all babies (not used)
 	private static List<Critter> babies = new java.util.ArrayList<Critter>();
 	
 
 	public static void addCritter(Critter c, int x, int y){
-		
 		population.add(c);
-		addCritterToBoard(c , x, y);
+		addCritterToBoard(c, x, y);
 	}
 	public static List<Critter> getCritterPopulation(){
 		return population;
@@ -71,7 +77,7 @@ public class CritterWorld {
 	
 	/**
 	 * method to delete critter in 2d array. Used mostly in walk and run
-	 * to delete old self in 2d aray and then placed back in 2d array 
+	 * to delete old self in 2d array and then placed back in 2d array 
 	 * after new x and y have been created
 	 * @param c
 	 * @param x
@@ -88,21 +94,12 @@ public class CritterWorld {
 	}
 	
 	/**
-	 * method that move critter in the 2d critter array
+	 * Checks for multiple critters in the same spot and call encounter
+	 * 
 	 * @param c
 	 * @param x
 	 * @param y
 	 */
-	public static void move(Critter c, int x, int y){
-		int bPos = cartesianToBoard(x,y);
-		for(int i = 0; i < maxCrittersInSpot; i++){
-			if(board[bPos][i]== null){
-				board[bPos][i] = c;
-				break;
-			}
-		}
-	}
-	
 	public static void checkSharePosition(Critter c, int x, int y){
 		int bPos = cartesianToBoard(x,y);
 		for(int i = 0; i < maxCrittersInSpot; i++){
@@ -111,7 +108,6 @@ public class CritterWorld {
 			}
 		}
 	}
-	
 	
 	/**
 	 * method to draw board, including boarders and critters

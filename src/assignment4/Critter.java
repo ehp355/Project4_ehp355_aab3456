@@ -25,9 +25,13 @@ import java.util.*;
 
 public abstract class Critter {
 	private static String myPackage;
+	
+	// We don't use the population list in Critter
 	private	static List<Critter> population = new java.util.ArrayList<Critter>();
+	
+	// We DO use the babies list in Critter
+	// TODO: Make it such that we use the babies list in CritterWorld
 	private static List<Critter> babies = new java.util.ArrayList<Critter>();
-	//world to keep track of critters
 
 	// Gets the package name.  This assumes that Critter and its subclasses are all in the same package.
 	static {
@@ -56,7 +60,7 @@ public abstract class Critter {
 	protected final void walk(int direction) {
 		CritterWorld.remove(this,this.x_coord,this.y_coord);
 		stepper(1,direction);
-		CritterWorld.move(this,this.x_coord,this.y_coord);
+		CritterWorld.addCritterToBoard(this,this.x_coord,this.y_coord);
 		this.energy = this.energy-Params.walk_energy_cost;
 
 	}
@@ -64,7 +68,7 @@ public abstract class Critter {
 	protected final void run(int direction) {
 		CritterWorld.remove(this, x_coord, y_coord);
 		stepper(2,direction);
-		CritterWorld.move(this, x_coord, y_coord);
+		CritterWorld.addCritterToBoard(this, x_coord, y_coord);
 		this.energy = this.energy-Params.run_energy_cost;
 	
 	}
@@ -81,15 +85,15 @@ public abstract class Critter {
 		case 3: x_coord = x_coord-step;
 				y_coord = y_coord-step;
 				break;
-		case 4: x_coord = x_coord -step;
+		case 4: x_coord = x_coord-step;
 				break;
 		case 5: x_coord = x_coord-step;
 				y_coord = y_coord+step;
 				break;
 		case 6: y_coord = y_coord+step;
 				break;
-		case 7: x_coord = x_coord +step;
-				y_coord = y_coord +step;
+		case 7: x_coord = x_coord+step;
+				y_coord = y_coord+step;
 		}
 
 		//If statements to check if the critter
@@ -110,6 +114,12 @@ public abstract class Critter {
 	protected final void reproduce(Critter offspring, int direction) {
 		
 		if(this.energy>= Params.min_reproduce_energy){
+			
+			/* Set the offspring's coordinates to its
+			 * parent's coordinates initially
+			 */
+			offspring.x_coord = this.x_coord;
+			offspring.y_coord = this.y_coord;
 		
 			//create function to process offspring position based on
 			//parents current position and direction
@@ -118,6 +128,9 @@ public abstract class Critter {
 			//set offspring energy
 			//and parent energy
 			offspring.energy=this.energy/2;
+			
+			// Reassign the parent so that it has 1⁄2 of its energy (rounding fraction up).
+			// Because energy is an integer, the only fraction we'll deal with is 0.5
 			double argument = (double)this.energy/(double)2.0;
 			this.energy = (int)Math.ceil(argument);
 			babies.add(offspring);
@@ -129,7 +142,7 @@ public abstract class Critter {
 	}
 
 	public abstract void doTimeStep();
-	public abstract boolean fight(String oponent);
+	public abstract boolean fight(String opponent);
 
 	/**
 	 * create and initialize a Critter subclass.
@@ -146,8 +159,8 @@ public abstract class Critter {
 		//Critter newCritter = null;
 		try {
 			String packageClass = myPackage+"."+critter_class_name;
-			critterClass = Class.forName(packageClass);
-			Object newCritter = critterClass.newInstance();
+			critterClass = Class.forName(packageClass);		// Need fully-qualified name
+			Object newCritter = critterClass.newInstance();	// newInstance() returns an object of type Object
 			
 			if(!(newCritter instanceof Critter)){
 				throw new InvalidCritterException(critter_class_name);
@@ -173,7 +186,6 @@ public abstract class Critter {
 			e.printStackTrace();
 		}
 
-
 	}
 
 	/**
@@ -193,6 +205,14 @@ public abstract class Critter {
 	 * @param critters List of Critters.
 	 */
 	public static void runStats(List<Critter> critters) {
+		
+		// TODO: Figure out how this is working
+		
+		/* As it stands right now, it seems that for each element in critters,
+		 * the old_count will be null. As such, when we get to the second for loop,
+		 * it seems like it'd just print a value of 1 for each critter when we 
+		 * make the call critter_count.get(s).
+		 */
 		System.out.print("" + critters.size() + " critters as follows -- ");
 		java.util.Map<String, Integer> critter_count = new java.util.HashMap<String, Integer>();
 		for (Critter crit : critters) {
@@ -226,20 +246,42 @@ public abstract class Critter {
 		protected void setEnergy(int new_energy_value) {
 			super.energy = new_energy_value;
 		}
-
-		protected void setX_coord(int new_x_coord) {
+		
+		/* A static nested class cannot refer directly to instance variables or 
+		 * methods defined in its enclosing class: it can use them only 
+		 * through an object reference. In our case, that object reference
+		 * is "super".
+		 */
+		protected void setX_coord(int new_x_coord) 
+		{
+			CritterWorld.remove(this, super.x_coord, super.y_coord);
 			super.x_coord = new_x_coord;
+			
+			/* Writing the method as:
+			 * 
+			 * CritterWorld.addCritterToBoard(this, x_coord, y_coord);
+			 * 
+			 * gives the error:
+			 * "Cannot make a static reference to the non-static field x_coord"
+			 */
+			
+			CritterWorld.addCritterToBoard(this, super.x_coord, super.y_coord);
 		}
 
-		protected void setY_coord(int new_y_coord) {
+		protected void setY_coord(int new_y_coord) 
+		{
+			CritterWorld.remove(this, super.x_coord, super.y_coord);
 			super.y_coord = new_y_coord;
+			CritterWorld.addCritterToBoard(this, super.x_coord, super.y_coord);
 		}
 
-		protected int getX_coord() {
+		protected int getX_coord() 
+		{
 			return super.x_coord;
 		}
 
-		protected int getY_coord() {
+		protected int getY_coord() 
+		{
 			return super.y_coord;
 		}
 
@@ -260,7 +302,10 @@ public abstract class Critter {
 		 * at either the beginning OR the end of every timestep.
 		 */
 		protected static List<Critter> getBabies() {
-			return CritterWorld.getCritterBabies();
+			/* We don't call CritterWorld.getCritterBabies() 
+			 * because we're using the babies list in Critter
+			 */
+			return babies;	
 		}
 	}
 
@@ -268,6 +313,7 @@ public abstract class Critter {
 	 * Clear the world of all critters, dead and alive
 	 */
 	public static void clearWorld() {
+		// TODO: Write this function
 	}
 
 	public static void worldTimeStep() {
@@ -283,6 +329,12 @@ public abstract class Critter {
 		for(int i = 0; i < pop.size(); i++){
 			CritterWorld.checkSharePosition(pop.get(i),pop.get(i).x_coord,pop.get(i).y_coord);
 		}
+		
+		for(int i = 0; i < pop.size();i++){
+			Critter c = pop.get(i);
+			c.energy = c.energy - Params.rest_energy_cost;
+		}
+		
 		//refresh Algae
 		for(int i = 0; i < Params.refresh_algae_count;i++){
 			try{
@@ -292,12 +344,6 @@ public abstract class Critter {
 			}
 		}
 
-		//SHOULD THIS BE DONE BEFORE OR AFTER BABIES ARE ADDED TO GENPOP?
-		for(int i = 0; i < pop.size();i++){
-			Critter c = pop.get(i);
-			c.energy = c.energy - Params.rest_energy_cost;
-		}
-
 		//Remove critters from pop who's energy<=0
 		for(int i = 0; i <pop.size();i++){
 			if(pop.get(i).getEnergy()<=0){
@@ -305,13 +351,13 @@ public abstract class Critter {
 				pop.remove(i);
 			}
 		}
+		
 		//Adds babies to general population
 		for(int i = 0; i<babies.size();i++){
 			CritterWorld.addCritter(babies.get(i), babies.get(i).x_coord, babies.get(i).y_coord);
 		}
 		
 		babies.clear();
-
 
 	}
 	
@@ -321,7 +367,9 @@ public abstract class Critter {
 		int aFightNumber;
 		int bFightNumber;
 		//checks if both have energy left and are in the still in the same position
-		if((a.energy>0&&b.energy>0)&&(CritterWorld.cartesianToBoard(a.x_coord, a.y_coord)==CritterWorld.cartesianToBoard(b.x_coord,b.y_coord))){
+		if((a.energy>0&&b.energy>0)&&(CritterWorld.cartesianToBoard(a.x_coord, a.y_coord) == 
+				CritterWorld.cartesianToBoard(b.x_coord,b.y_coord)))
+		{
 			if(aFights){
 				aFightNumber=getRandomInt(a.energy);
 			}else{
@@ -337,7 +385,7 @@ public abstract class Critter {
 				resolveFight(a,b);
 			}else if(aFightNumber > bFightNumber){
 				resolveFight(a,b);
-			}else if(aFightNumber>bFightNumber){
+			}else if(aFightNumber < bFightNumber){
 				resolveFight(b,a);
 			}
 		}
@@ -347,13 +395,13 @@ public abstract class Critter {
 	/**
 	 * method to resolve who won the fight, the first critter parameter is the winner
 	 * and the second critter parameter is the loser
-	 * @param a
-	 * @param b
+	 * @param winner
+	 * @param loser
 	 */
-	public static void resolveFight(Critter a, Critter b){
+	public static void resolveFight(Critter winner, Critter loser){
 		
-		a.energy= a.energy+(b.energy/2);
-		b.energy = 0;
+		winner.energy= winner.energy+(loser.energy/2);
+		loser.energy = 0;
 		
 	}
 
