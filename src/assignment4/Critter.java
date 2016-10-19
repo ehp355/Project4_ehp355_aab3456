@@ -25,10 +25,10 @@ import java.util.*;
 public abstract class Critter {
 	private static String myPackage;
 	
-	// We don't use the population list in Critter
+	// We do NOT use the population list in Critter
 	private	static List<Critter> population = new java.util.ArrayList<Critter>();
 	
-	// We DO use the babies list in Critter
+	// We do use the babies list in Critter
 	// TODO: Make it such that we use the babies list in CritterWorld
 	private static List<Critter> babies = new java.util.ArrayList<Critter>();
 
@@ -58,6 +58,7 @@ public abstract class Critter {
 
 	protected final void walk(int direction) 
 	{	
+		// TODO: Check if this throws a ConcurrentModificationException if called from fight()
 		if (!CritterWorld.checkIfMoved(this)) {
 			CritterWorld.remove(this, this.x_coord, this.y_coord);
 			stepper(1, direction);
@@ -65,19 +66,20 @@ public abstract class Critter {
 			CritterWorld.addCritterToMoved(this);
 		}
 		
-		this.energy = this.energy-Params.walk_energy_cost;
+		this.energy = this.energy - Params.walk_energy_cost;
 	}
 
 	protected final void run(int direction) 
 	{
+		// TODO: Check if this throws a ConcurrentModificationException if called from fight()
 		if (!CritterWorld.checkIfMoved(this)) {
-			CritterWorld.remove(this, x_coord, y_coord);
+			CritterWorld.remove(this, this.x_coord, this.y_coord);
 			stepper(2, direction);
 			CritterWorld.addCritterToBoard(this, x_coord, y_coord);
 			CritterWorld.addCritterToMoved(this);
 		}
 		
-		this.energy = this.energy-Params.run_energy_cost;
+		this.energy = this.energy - Params.run_energy_cost;
 	}
 	
 	private void stepper(int step, int direction){
@@ -129,13 +131,11 @@ public abstract class Critter {
 			offspring.x_coord = this.x_coord;
 			offspring.y_coord = this.y_coord;
 		
-			//create function to process offspring position based on
-			//parents current position and direction
+			// Use stepper() to initialize offspring position
 			offspring.stepper(1, direction);
 			
-			//set offspring energy
-			//and parent energy
-			offspring.energy=this.energy/2;
+			// Set offspring energy 
+			offspring.energy = this.energy / 2;
 			
 			// Reassign the parent so that it has 1⁄2 of its energy (rounding fraction up).
 			// Because energy is an integer, the only fraction we'll deal with is 0.5
@@ -201,10 +201,10 @@ public abstract class Critter {
 		// TODO: Test for abstract vs. concrete classes
 		
 		Critter c = (Critter)newCritter;
-		c.x_coord=Critter.getRandomInt(Params.world_width-1);
-		c.y_coord=Critter.getRandomInt(Params.world_height-1);
-		c.energy=Params.start_energy;
-		CritterWorld.addCritter(c,c.x_coord,c.y_coord);
+		c.x_coord = Critter.getRandomInt(Params.world_width - 1);
+		c.y_coord = Critter.getRandomInt(Params.world_height - 1);
+		c.energy = Params.start_energy;
+		CritterWorld.addCritter(c, c.x_coord, c.y_coord);
 	}
 
 	/**
@@ -258,12 +258,12 @@ public abstract class Critter {
 	 */
 	public static void runStats(List<Critter> critters) {
 		
-		// TODO: Figure out how this is working
+		// DONE: Figure out how this is working
 		
-		/* As it stands right now, it seems that for each element in critters,
-		 * the old_count will be null. As such, when we get to the second for loop,
-		 * it seems like it'd just print a value of 1 for each critter when we 
-		 * make the call critter_count.get(s).
+		/* Because the critter_count Map is using the String representations
+		 * of Critters as key values, we'll get an entry for each TYPE of 
+		 * Critter in the Map. As such, we won't just get an entry for each
+		 * Critter in critters.
 		 */
 		System.out.print("" + critters.size() + " critters as follows -- ");
 		java.util.Map<String, Integer> critter_count = new java.util.HashMap<String, Integer>();
@@ -376,19 +376,21 @@ public abstract class Critter {
 	}
 
 	public static void worldTimeStep() {
-		// gets list of current critters on the board
+		// Gets list of current critters on the board
 		List<Critter> pop = CritterWorld.getCritterPopulation();
-		// for loop to go through each critter in population
+		
+		// for loop to go through each Critter in population
 		// and call their individual doTimeStep
 		for(int i = 0; i < pop.size(); i++){
 			pop.get(i).doTimeStep();
 		}
 		
-		// check for encounters(critters in the same spot)
+		// Check for encounters (Critters in the same spot)
 		for(int i = 0; i < pop.size(); i++){
-			CritterWorld.checkSharePosition(pop.get(i),pop.get(i).x_coord,pop.get(i).y_coord);
+			CritterWorld.checkSharePosition(pop.get(i), pop.get(i).x_coord, pop.get(i).y_coord);
 		}
 		
+		// Check Piazza (@267) for order of worldTimeStep here 
 		for(int i = 0; i < pop.size();i++){
 			Critter c = pop.get(i);
 			c.energy = c.energy - Params.rest_energy_cost;
@@ -404,16 +406,16 @@ public abstract class Critter {
 			}
 		}
 
-		// Remove critters from pop who's energy<=0
-		for(int i = 0; i <pop.size();i++){
-			if(pop.get(i).getEnergy()<=0){
+		// Remove critters from pop whose energy<=0
+		for(int i = 0; i < pop.size(); i++){
+			if(pop.get(i).getEnergy() <= 0){
 				CritterWorld.remove(pop.get(i), pop.get(i).x_coord, pop.get(i).y_coord);
 				pop.remove(i);
 			}
 		}
 		
 		// Adds babies to general population
-		for(int i = 0; i<babies.size();i++){
+		for(int i = 0; i < babies.size(); i++){
 			CritterWorld.addCritter(babies.get(i), babies.get(i).x_coord, babies.get(i).y_coord);
 		}
 		
@@ -425,24 +427,29 @@ public abstract class Critter {
 
 	}
 	
-	public static void encounter(Critter a, Critter b){
+	public static void encounter(Critter a, Critter b)
+	{
 		boolean aFights = a.fight(b.toString());
 		boolean bFights = b.fight(a.toString());
 		int aFightNumber;
 		int bFightNumber;
-		//checks if both have energy left and are in the still in the same position
+		
+		// Checks if both have energy left and are in the still in the same position
 		if((a.energy > 0 && b.energy > 0) && (CritterWorld.cartesianToBoard(a.x_coord, a.y_coord) == 
 				CritterWorld.cartesianToBoard(b.x_coord,b.y_coord)))
 		{
 			if(aFights){
-				aFightNumber=getRandomInt(a.energy);
-			}else{
-				aFightNumber=0;
+				aFightNumber = getRandomInt(a.energy);
 			}
+			else{
+				aFightNumber = 0;
+			}
+			
 			if(bFights){
-				bFightNumber=getRandomInt(b.energy);
-			}else{
-				bFightNumber=0;
+				bFightNumber = getRandomInt(b.energy);
+			}
+			else{
+				bFightNumber = 0;
 			}
 			
 			if(aFightNumber == bFightNumber){

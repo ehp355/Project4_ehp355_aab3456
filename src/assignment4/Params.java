@@ -1,26 +1,13 @@
-/* CRITTERS Params.java
- * EE422C Project 4 submission by
- * Replace <...> with your actual data.
- * Aaron Babber
- * aab3456
- * 16480
- * Enrique Perez-Osborne
- * ehp355
- * 16465
- * Slip days used: <0>
- * Fall 2016
- */
-
 package assignment4;
 
 /*
- * Change these parameter values for testing.
+ * Change these parameter values for testing.  
  * Do not add or remove any parameters in this file.
  */
 
 public class Params {
-	public final static int world_width = 5;	//original 160
-	public final static int world_height = 5;	//original 80
+	public final static int world_width = 160;
+	public final static int world_height = 80;
 	public final static int walk_energy_cost = 2;
 	public final static int run_energy_cost = 5;
 	public final static int rest_energy_cost = 0;

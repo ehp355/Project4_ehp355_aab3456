@@ -87,6 +87,8 @@ public class Main {
         	try {
 	        	System.out.print("critters> ");
 	        	fullInput = kb.nextLine();
+	        	invalidCommand = false;
+	        	exceptionLikeCommand = false;
 	        	
 	        	/* Divides the input into parts and stores the results in an array.
 	    	     * The regex "\\s+" splits the input String using any whitespace 

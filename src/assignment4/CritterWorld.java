@@ -17,17 +17,26 @@ import java.util.*;
 import java.util.List;
 public class CritterWorld {
 	
-	static int maxCrittersInSpot = 100;
+	// static int maxCrittersInSpot = 100;
 
 	// board is a 2d ArrayList where the 1st dimension is a position on the board 
 	// and the 2nd dimension is a list of critters in that position
-	// TODO: Make a dynamic board array
-	private static Critter[][] board = new Critter[Params.world_height*Params.world_width][maxCrittersInSpot];
+	// private static Critter[][] board = new Critter[Params.world_height*Params.world_width][maxCrittersInSpot];
+	
+	// DONE: Make a dynamic board array
+	private static ArrayList<ArrayList<Critter>> boardList = new ArrayList<ArrayList<Critter>>();
+	
+	// TODO: Double check use of static block
+	static {
+		for (int i = 0; i < Params.world_height*Params.world_width; i++) {
+			boardList.add(new ArrayList<Critter>());
+		}
+	}
 	
 	// List of all Critter instances with no particular ordering
 	private	static List<Critter> population = new java.util.ArrayList<Critter>();
 	
-	// List of all babies (not used)
+	// List of all babies (NOT USED)
 	private static List<Critter> babies = new java.util.ArrayList<Critter>();
 	
 	// List of all Critters who have called walk() or run() in a time step
@@ -46,20 +55,43 @@ public class CritterWorld {
 	}
 	
 	/**
-	 * method that adds critter to board. Uses a for loop to ensure it does not overwrite 
-	 * any critters that may already in that position
-	 * @param c
+	 * This method adds a Critter to boardList. We don't need to worry
+	 * about overwriting elements as boardList is an ArrayList of ArrayLists.
+	 * 
+	 * @param c the Critter instance to be added
 	 */
-	public static void addCritterToBoard(Critter c,int x ,int y)
+	public static void addCritterToBoard(Critter c, int x, int y)
 	{	
 		int boardposition = cartesianToBoard(x,y);
+		ArrayList<Critter> temp = boardList.get(boardposition);		// temp should be able to modify boardList
+		temp.add(c);	// We don't need to add c to a specific index
+		
+		/*
 		for(int i = 0; i < maxCrittersInSpot; i++){
 			if(board[boardposition][i]==null){
 				board[boardposition][i] = c;
 				break;
 			}
 		}
+		*/
 		
+		
+	}
+	
+	/**
+	 * Method that returns where in the boardList the Critter should 
+	 * be placed at or removed from based on the (x, y) coordinate and 
+	 * dimensions of the board
+	 * 
+	 * @param x the horizontal position
+	 * @param y the vertical position
+	 * @return
+	 */
+	public static int cartesianToBoard(int x, int y) {
+		int bpos;
+		bpos = y * Params.world_width;
+		bpos = bpos + x;
+		return bpos;
 	}
 	
 	/**
@@ -107,40 +139,33 @@ public class CritterWorld {
 	}
 	
 	/**
-	 * method that returns where in the board array the critter should 
-	 * be placed or removed from based on x y coordinate and dimensions of
-	 * the board
-	 * @param x
-	 * @param y
-	 * @return
-	 */
-	public static int cartesianToBoard(int x, int y){
-		int bpos;
-		bpos = y * Params.world_width;
-		bpos = bpos + x;
-		return bpos;
-	}
-	
-	/**
-	 * method to delete critter in 2d array. Used mostly in walk and run
-	 * to delete old self in 2d array and then placed back in 2d array 
-	 * after new x and y have been created
-	 * @param c
-	 * @param x
-	 * @param y
+	 * A method to delete a Critter from boardList. It is used mostly in 
+	 * walk() and run() to delete the old instance from boardList, which 
+	 * is then placed back after the new x and y have been calculated.
+	 * 
+	 * @param c the Critter instance to be removed
+	 * @param x the horizontal position
+	 * @param y the vertical position
 	 */
 	public static void remove(Critter c, int x, int y){
-		int bPos = cartesianToBoard(x,y);
+		int bPos = cartesianToBoard(x, y);
+		ArrayList<Critter> temp = boardList.get(bPos);
+		
+		// TODO: Test that remove() works properly
+		temp.remove(c);	
+		
+		/*
 		for(int i = 0; i < maxCrittersInSpot; i++){
 			if(c == board[bPos][i]){
 				board[bPos][i] = null;
 				break;
 			}
 		}
+		*/
 	}
 	
 	/**
-	 * Checks for multiple critters in the same spot and call encounter
+	 * Checks for multiple critters in the same spot and calls encounter()
 	 * 
 	 * @param c
 	 * @param x
@@ -148,21 +173,37 @@ public class CritterWorld {
 	 */
 	public static void checkSharePosition(Critter c, int x, int y){
 		int bPos = cartesianToBoard(x,y);
+		ArrayList<Critter> temp = boardList.get(bPos);
+		Iterator<Critter> it = temp.iterator();
+		
+		/* Need iterator and while loop for cases when the Critter c
+		 * runs away during a fight.
+		 */
+		while (it.hasNext() && temp.contains(c)) {
+			Critter test = it.next();
+			if (test != c) {
+				Critter.encounter(c, test);
+			}
+		}
+		
+		/*
 		for(int i = 0; i < maxCrittersInSpot; i++){
 			if(board[bPos][i]!=null && board[bPos][i]!=c){
 				Critter.encounter(c,board[bPos][i]);
 			}
 		}
+		*/
+		
 	}
 	
 	/**
-	 * method to draw board, including boarders and critters
+	 * Method to draw board, including boarders and critters
 	 */
 	public static void displayWorld(){
 		
 		int board_position = 0;
 		System.out.print("+");
-		for(int i = 0; i < Params.world_width;i++){
+		for(int i = 0; i < Params.world_width; i++){
 			System.out.print("-");
 		}
 		System.out.print("+");
@@ -171,13 +212,27 @@ public class CritterWorld {
 		
 		for(int i = 0; i < Params.world_height; i++){
 			System.out.print("|");
-			for(int j = 0; j< Params.world_width; j++){
+			for(int j = 0; j < Params.world_width; j++){
+				
+				ArrayList<Critter> temp = boardList.get(board_position);
+				
+				if(!temp.isEmpty()) {
+					System.out.print(temp.get(0));	// TODO: Seriously double check this
+				}
+				else {
+					System.out.print(" ");
+				}
+				
+				board_position++;
+				
+				/*
 				if(board[board_position][0]!=null){
 					System.out.print(board[board_position][0]);
 				}else{
 					System.out.print(" ");
 				}
-				board_position++;
+				*/
+				
 			}
 			System.out.println("|");
 		}
@@ -211,6 +266,14 @@ public class CritterWorld {
 	
 	public static void clearBoard()
 	{
+		// Loop IS necessary
+		for (ArrayList<Critter> list : boardList) {
+			list.clear();
+		}
+		
+		boardList.clear();
+		
+		/*
 		int numSquares = Params.world_height*Params.world_width;
 		
 		for (int i = 0; i < numSquares; i++) {
@@ -218,6 +281,7 @@ public class CritterWorld {
 				board[i][j] = null;
 			}
 		}
+		*/
 		
 	}
 
