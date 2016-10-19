@@ -5,23 +5,71 @@ package assignment4;
  *Skeleton for Critter1, needs work [10/17/16]
  */
 public class Critter1 extends Critter {
+	private int dir;
+	private int children;
+	
 	@Override
 	public String toString(){return "1";}
 	
+	
 	public Critter1(){
-		
+		dir = Critter.getRandomInt(8);
 	}
 	
+	/**
+	 * Craig is the natural predator to Critter1, so Critter1 will run away if 
+	 * return false if faced against craig.Critter1 is the natural predator to
+	 * Critter2, so it will always fight if faced against Critter2. Anything else
+	 * it will be based on a random roll. 1 says it fights 0 says it runs
+	 */
 	public boolean fight(String critterType){
-		return false;
+		if(critterType.equals("Craig")){
+			int cdir;
+			if(dir >=0 && dir<=3){
+				cdir = dir +2;
+			}else{
+				cdir = dir -2;
+			}
+			reproduce(new Critter1(),cdir);
+			children++;
+			return false;
+		}else if(critterType.equals("Critter2")){
+			return true;
+		}else{
+			int rand = Critter.getRandomInt(1);
+			return rand==1;
+		}
+		
+
 	}
 	
 	@Override
 	public void doTimeStep(){
-		
+		CalculateWalk();
+		walk(dir);
 	}
 	
+	/**
+	 * method to force Critter1 to walk back and forth, its children will back and forth but 
+	 * in the direction 90degrees to its parents direction
+	 */
+	public void CalculateWalk(){
+		if(dir>=0 && dir<=3){
+			dir = dir +4;
+		}else{
+			dir = dir -4;
+		}
+	}
+	
+	/**
+	 * prints out how manys kids each Critter1 on the board has had.
+	 * @param critter1
+	 */
 	public static void runStats(java.util.List<Critter> critter1){
 		
+		for(Object obj : critter1){
+			Critter1 c = (Critter1) obj;
+			System.out.println("This Critter1 had "+ c.children+" kids.");
+		}
 	}
 }
