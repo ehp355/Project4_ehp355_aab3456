@@ -24,14 +24,7 @@ public class CritterWorld {
 	// private static Critter[][] board = new Critter[Params.world_height*Params.world_width][maxCrittersInSpot];
 	
 	// DONE: Make a dynamic board array
-	private static ArrayList<ArrayList<Critter>> boardList = new ArrayList<ArrayList<Critter>>();
-	
-	// TODO: Double check use of static block
-	static {
-		for (int i = 0; i < Params.world_height*Params.world_width; i++) {
-			boardList.add(new ArrayList<Critter>());
-		}
-	}
+	public static ArrayList<ArrayList<Critter>> boardList = new ArrayList<ArrayList<Critter>>();
 	
 	// List of all Critter instances with no particular ordering
 	private	static List<Critter> population = new java.util.ArrayList<Critter>();
@@ -42,15 +35,29 @@ public class CritterWorld {
 	// List of all Critters who have called walk() or run() in a time step
 	private static List<Critter> haveMoved = new java.util.ArrayList<Critter>();
 	
-
-	public static void addCritter(Critter c, int x, int y){
+	public static void initialize() 
+	{
+		if (boardList.isEmpty()) {
+			for (int i = 0; i < Params.world_height*Params.world_width; i++) {
+				boardList.add(new ArrayList<Critter>());
+			}
+		}
+	}
+	
+	public static void addCritter(Critter c, int x, int y)
+	{
+		initialize();
 		population.add(c);
 		addCritterToBoard(c, x, y);
 	}
-	public static List<Critter> getCritterPopulation(){
+	
+	public static List<Critter> getCritterPopulation()
+	{
 		return population;
 	}
-	public static List<Critter> getCritterBabies(){
+	
+	public static List<Critter> getCritterBabies()
+	{
 		return babies;
 	}
 	
@@ -62,6 +69,7 @@ public class CritterWorld {
 	 */
 	public static void addCritterToBoard(Critter c, int x, int y)
 	{	
+		initialize();
 		int boardposition = cartesianToBoard(x,y);
 		ArrayList<Critter> temp = boardList.get(boardposition);		// temp should be able to modify boardList
 		temp.add(c);	// We don't need to add c to a specific index
@@ -87,7 +95,9 @@ public class CritterWorld {
 	 * @param y the vertical position
 	 * @return
 	 */
-	public static int cartesianToBoard(int x, int y) {
+	public static int cartesianToBoard(int x, int y) 
+	{
+		initialize();
 		int bpos;
 		bpos = y * Params.world_width;
 		bpos = bpos + x;
@@ -103,6 +113,7 @@ public class CritterWorld {
 	 */
 	public static void addCritterToMoved(Critter critter) 
 	{
+		initialize();
 		haveMoved.add(critter);
 	}
 	
@@ -117,7 +128,9 @@ public class CritterWorld {
 	 */
 	public static boolean checkIfMoved(Critter critter)
 	{
-		/* TODO: Determine whether this works with subclasses of Critter,
+		initialize();
+		
+		/* DONE: Determine whether this works with subclasses of Critter,
 		 * as casting might have an effect on the reference.
 		 */
 		for (Critter c : haveMoved) {
@@ -135,6 +148,8 @@ public class CritterWorld {
 	 */
 	public static void clearMoved()
 	{
+		initialize();
+		
 		haveMoved.clear();
 	}
 	
@@ -148,10 +163,13 @@ public class CritterWorld {
 	 * @param y the vertical position
 	 */
 	public static void remove(Critter c, int x, int y){
+		
+		initialize();
+		
 		int bPos = cartesianToBoard(x, y);
 		ArrayList<Critter> temp = boardList.get(bPos);
 		
-		// TODO: Test that remove() works properly
+		// DONE: Test that remove() works properly
 		temp.remove(c);	
 		
 		/*
@@ -165,41 +183,11 @@ public class CritterWorld {
 	}
 	
 	/**
-	 * Checks for multiple critters in the same spot and calls encounter()
-	 * 
-	 * @param c
-	 * @param x
-	 * @param y
-	 */
-	public static void checkSharePosition(Critter c, int x, int y){
-		int bPos = cartesianToBoard(x,y);
-		ArrayList<Critter> temp = boardList.get(bPos);
-		Iterator<Critter> it = temp.iterator();
-		
-		/* Need iterator and while loop for cases when the Critter c
-		 * runs away during a fight.
-		 */
-		while (it.hasNext() && temp.contains(c)) {
-			Critter test = it.next();
-			if (test != c) {
-				Critter.encounter(c, test);
-			}
-		}
-		
-		/*
-		for(int i = 0; i < maxCrittersInSpot; i++){
-			if(board[bPos][i]!=null && board[bPos][i]!=c){
-				Critter.encounter(c,board[bPos][i]);
-			}
-		}
-		*/
-		
-	}
-	
-	/**
 	 * Method to draw board, including boarders and critters
 	 */
-	public static void displayWorld(){
+	public static void displayWorld()
+	{
+		initialize();
 		
 		int board_position = 0;
 		System.out.print("+");
@@ -217,7 +205,7 @@ public class CritterWorld {
 				ArrayList<Critter> temp = boardList.get(board_position);
 				
 				if(!temp.isEmpty()) {
-					System.out.print(temp.get(0));	// TODO: Seriously double check this
+					System.out.print(temp.get(0));	// DONE: Seriously double check this
 				}
 				else {
 					System.out.print(" ");
@@ -244,7 +232,8 @@ public class CritterWorld {
 		System.out.println("+");
 	}
 	
-	public static void stage1AddAlgaeCraig(){
+	public static void stage1AddAlgaeCraig()
+	{
 		//add 100 Algae to board
 		for(int i = 0; i < 5; i++){
 			try{
@@ -283,6 +272,60 @@ public class CritterWorld {
 		}
 		*/
 		
+	}
+	
+	public static boolean checkForwardDirection(Critter c) 
+	{
+		int position = 0;
+		boolean found = false;
+		for (ArrayList<Critter> list : boardList) {
+			if (list.contains(c)) {
+				found = true;
+				position = boardList.indexOf(list);
+				break;
+			}
+		}
+		
+		if (!found) {
+			return false;
+		}
+		
+		int newPosition = 0;
+		if ((position - Params.world_width) < 0) {
+			newPosition = position + ((Params.world_height - 1) * Params.world_width);
+		}
+		else {
+			newPosition = position - Params.world_width;
+		}
+		
+		return boardList.get(newPosition).isEmpty();
+	}
+	
+	public static boolean checkBackwardDirection(Critter c) 
+	{
+		int position = 0;
+		boolean found = false;
+		for (ArrayList<Critter> list : boardList) {
+			if (list.contains(c)) {
+				found = true;
+				position = boardList.indexOf(list);
+				break;
+			}
+		}
+		
+		if (!found) {
+			return false;
+		}
+		
+		int newPosition = 0;
+		if ((position + Params.world_width) > (boardList.size() - 1)) {
+			newPosition = position - ((Params.world_height - 1) * Params.world_width);
+		}
+		else {
+			newPosition = position + Params.world_width;
+		}
+		
+		return boardList.get(newPosition).isEmpty();
 	}
 
 }

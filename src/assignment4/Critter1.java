@@ -2,7 +2,7 @@ package assignment4;
 /**
  * 
  * @author Enrique
- *Skeleton for Critter1, needs work [10/17/16]
+ * Skeleton for Critter1, needs work [10/17/16]
  */
 public class Critter1 extends Critter {
 	private int dir;
@@ -18,9 +18,9 @@ public class Critter1 extends Critter {
 	
 	/**
 	 * Craig is the natural predator to Critter1, so Critter1 will run away if 
-	 * return false if faced against craig.Critter1 is the natural predator to
+	 * return false if faced against Craig. Critter1 is the natural predator to
 	 * Critter2, so it will always fight if faced against Critter2. Anything else
-	 * it will be based on a random roll. 1 says it fights 0 says it runs
+	 * will be based on a random roll. 1 says it fights 0 says it runs.
 	 */
 	public boolean fight(String critterType){
 		if(critterType.equals("Craig")){
@@ -50,19 +50,20 @@ public class Critter1 extends Critter {
 	}
 	
 	/**
-	 * method to force Critter1 to walk back and forth, its children will back and forth but 
-	 * in the direction 90degrees to its parents direction
+	 * This method forces Critter1 to walk back and forth. Its children will go back  
+	 * and forth but in the direction at 90 degrees to its parent's direction.
 	 */
 	public void CalculateWalk(){
 		if(dir>=0 && dir<=3){
-			dir = dir +4;
+			dir = dir + 4;
 		}else{
-			dir = dir -4;
+			dir = dir - 4;
 		}
 	}
 	
 	/**
-	 * prints out how manys kids each Critter1 on the board has had.
+	 * Prints out how manys kids each Critter1 on the board has had
+	 * 
 	 * @param critter1
 	 */
 	public static void runStats(java.util.List<Critter> critter1){

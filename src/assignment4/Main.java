@@ -163,8 +163,8 @@ public class Main {
 	        		}
 	        	}
 	        	
-	        	/* TODO: Determine what to do if a subclass doesn't implement runStats.
-	        	 * Does the super's runStats method get invoked?
+	        	/* DONE: If subclass doesn't implement runStats, super's runStats 
+	        	 * gets invoked
 	        	 */
 	        	else if (command.equals("stats")) {
 	        		if (user.length == 2) {
@@ -191,7 +191,6 @@ public class Main {
 	        		invalidCommand = true;
 	        	}
 	        	
-	        	// TODO: Determine whether this should be on a new line
 	        	if (invalidCommand) {
 	        		System.out.println("invalid command: " + fullInput);
 	        	}

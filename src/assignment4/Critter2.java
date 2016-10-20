@@ -2,7 +2,7 @@ package assignment4;
 /**
  * 
  * @author Enrique
- *Skeleton for Critter1, needs work [10/17/16]
+ * Skeleton for Critter1, needs work [10/17/16]
  */
 public class Critter2 extends  Critter {
 	private int dir;
@@ -45,8 +45,9 @@ public class Critter2 extends  Critter {
 	}
 	
 	/**
-	 * prints out the number of times each individual Critter2 has fought, and the total
+	 * Prints out the number of times each individual Critter2 has fought, and the total
 	 * number of fights between all living Critter2s.
+	 * 
 	 * @param critter2
 	 */
 	public static void runStats(java.util.List<Critter> critter2){

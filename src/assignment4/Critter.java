@@ -16,6 +16,8 @@ package assignment4;
 import java.lang.Math;
 import java.util.*;
 
+import java.lang.reflect.Modifier;
+
 /* see the PDF for descriptions of the methods and fields in this class
  * you may add fields, methods or inner classes to Critter ONLY if you make your additions private
  * no new public, protected or default-package code or data can be added to Critter
@@ -29,7 +31,6 @@ public abstract class Critter {
 	private	static List<Critter> population = new java.util.ArrayList<Critter>();
 	
 	// We do use the babies list in Critter
-	// TODO: Make it such that we use the babies list in CritterWorld
 	private static List<Critter> babies = new java.util.ArrayList<Critter>();
 
 	// Gets the package name.  This assumes that Critter and its subclasses are all in the same package.
@@ -58,7 +59,7 @@ public abstract class Critter {
 
 	protected final void walk(int direction) 
 	{	
-		// TODO: Check if this throws a ConcurrentModificationException if called from fight()
+		// DONE: Does NOT throw a ConcurrentModificationException if called from fight()
 		if (!CritterWorld.checkIfMoved(this)) {
 			CritterWorld.remove(this, this.x_coord, this.y_coord);
 			stepper(1, direction);
@@ -71,7 +72,7 @@ public abstract class Critter {
 
 	protected final void run(int direction) 
 	{
-		// TODO: Check if this throws a ConcurrentModificationException if called from fight()
+		// DONE: Does NOT throw a ConcurrentModificationException if called from fight()
 		if (!CritterWorld.checkIfMoved(this)) {
 			CritterWorld.remove(this, this.x_coord, this.y_coord);
 			stepper(2, direction);
@@ -170,7 +171,7 @@ public abstract class Critter {
 		/* We must throw an InvalidCritterException when catching any other
 		 * exception in this method.
 		 * 
-		 * TODO: Double-check throwing InvalidCritterException here
+		 * DONE: Double-check throwing InvalidCritterException here
 		 */
 		try {
 			// Need fully-qualified name
@@ -198,12 +199,20 @@ public abstract class Critter {
 			throw new InvalidCritterException("");
 		}
 		
-		// TODO: Test for abstract vs. concrete classes
+		// DONE: Test for abstract vs. concrete classes
+		if (Modifier.isAbstract(critterClass.getModifiers())) {
+			throw new InvalidCritterException("");
+		}
 		
 		Critter c = (Critter)newCritter;
-		c.x_coord = Critter.getRandomInt(Params.world_width - 1);
-		c.y_coord = Critter.getRandomInt(Params.world_height - 1);
+		// c.x_coord = Critter.getRandomInt(Params.world_width - 1);
+		c.x_coord = Critter.getRandomInt(Params.world_width);
+		// c.y_coord = Critter.getRandomInt(Params.world_height - 1);
+		c.y_coord = Critter.getRandomInt(Params.world_height);
 		c.energy = Params.start_energy;
+		
+		// TODO: Double check use of initialize()
+		CritterWorld.initialize();
 		CritterWorld.addCritter(c, c.x_coord, c.y_coord);
 	}
 
@@ -220,8 +229,7 @@ public abstract class Critter {
 		Class<?> critterClass = null;
 		String packageClass = myPackage + "." + critter_class_name;
 		
-		// TODO: Double-check throwing ICE here
-		// TODO: Test for abstract vs. concrete classes
+		// DONE: Double-check throwing ICE here
 		try {
 			critterClass = Class.forName(packageClass);
 		} 
@@ -234,6 +242,11 @@ public abstract class Critter {
 		 * the class or interface represented by critterClass.
 		 */
 		if (!Critter.class.isAssignableFrom(critterClass)) {
+			throw new InvalidCritterException("");
+		}
+		
+		// DONE: Test for abstract vs. concrete classes
+		if (Modifier.isAbstract(critterClass.getModifiers())) {
 			throw new InvalidCritterException("");
 		}
 		
@@ -381,36 +394,40 @@ public abstract class Critter {
 		
 		// for loop to go through each Critter in population
 		// and call their individual doTimeStep
-		for(int i = 0; i < pop.size(); i++){
-			pop.get(i).doTimeStep();
+		for(Critter c : pop){
+			c.doTimeStep();
 		}
 		
 		// Check for encounters (Critters in the same spot)
-		for(int i = 0; i < pop.size(); i++){
-			CritterWorld.checkSharePosition(pop.get(i), pop.get(i).x_coord, pop.get(i).y_coord);
+		for(Critter c : pop){
+			checkSharePosition(c, c.x_coord, c.y_coord);
 		}
 		
 		// Check Piazza (@267) for order of worldTimeStep here 
-		for(int i = 0; i < pop.size();i++){
+		for(int i = 0; i < pop.size(); i++){
 			Critter c = pop.get(i);
 			c.energy = c.energy - Params.rest_energy_cost;
 		}
 		
 		// Refresh Algae
-		// TODO: Determine how to throw ICE in this case
+		// DONE: Shouldn't need to handle ICE here
 		for(int i = 0; i < Params.refresh_algae_count;i++){
 			try{
 				makeCritter("Algae");
 			}catch(Exception e){
-				
+				/* As Algae is a concrete class of Critter, we should never reach
+				 * this block.
+				 */		
 			}
 		}
 
 		// Remove critters from pop whose energy<=0
-		for(int i = 0; i < pop.size(); i++){
-			if(pop.get(i).getEnergy() <= 0){
-				CritterWorld.remove(pop.get(i), pop.get(i).x_coord, pop.get(i).y_coord);
-				pop.remove(i);
+		Iterator<Critter> it = pop.iterator();
+		while (it.hasNext()) {
+			Critter c = it.next();
+			if (c.getEnergy() <= 0) {
+				CritterWorld.remove(c, c.x_coord, c.y_coord);
+				it.remove();	// Removes element from pop
 			}
 		}
 		
@@ -427,7 +444,7 @@ public abstract class Critter {
 
 	}
 	
-	public static void encounter(Critter a, Critter b)
+	private static void encounter(Critter a, Critter b)
 	{
 		boolean aFights = a.fight(b.toString());
 		boolean bFights = b.fight(a.toString());
@@ -463,13 +480,41 @@ public abstract class Critter {
 		
 	}
 	
+	private static void checkSharePosition(Critter c, int x, int y)
+	{
+		CritterWorld.initialize();
+		
+		int bPos = CritterWorld.cartesianToBoard(x,y);
+		ArrayList<Critter> temp = CritterWorld.boardList.get(bPos);
+		Iterator<Critter> it = temp.iterator();
+		
+		/* Need iterator and while loop for cases when the Critter c
+		 * runs away during a fight.
+		 */
+		while (it.hasNext() && temp.contains(c)) {
+			Critter test = it.next();
+			if (test != c) {
+				Critter.encounter(c, test);
+			}
+		}
+		
+		/*
+		for(int i = 0; i < maxCrittersInSpot; i++){
+			if(board[bPos][i]!=null && board[bPos][i]!=c){
+				Critter.encounter(c,board[bPos][i]);
+			}
+		}
+		*/
+		
+	}
+	
 	/**
 	 * Method to resolve who won the fight
 	 * 
 	 * @param winner the winning Critter in a fight
 	 * @param loser the losing Critter in a fight
 	 */
-	public static void resolveFight(Critter winner, Critter loser)
+	private static void resolveFight(Critter winner, Critter loser)
 	{	
 		winner.energy = winner.energy + (loser.energy/2);
 		loser.energy = 0;	
