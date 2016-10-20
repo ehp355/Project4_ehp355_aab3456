@@ -5,9 +5,9 @@ package assignment4;
  *Critter2 sets its initial direction to 4. Critter2 will only attempt to fight
  *other Critter2s as well as reproduce 1 child. If it encounters any other Critter
  *it will attempt to reproduce 2 children and return false for fight. Critter2 will
- *run in a "Z" like formation. The runStats method will return how many times each
+ *continuously run in one direction. The runStats method will return how many times each
  *Critter2 on the board has fought, and the total number of fights between all the
- *Critter2s that are alive. 
+ *Critter2s that are alive.
  */
 public class Critter2 extends  Critter {
 	private int dir;
@@ -45,9 +45,12 @@ public class Critter2 extends  Critter {
 
 	@Override
 	public void doTimeStep(){
+
 		run(dir);
 
 	}
+
+
 
 	/**
 	 * prints out the number of times each individual Critter2 has fought, and the total
