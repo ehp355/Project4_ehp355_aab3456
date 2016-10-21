@@ -38,7 +38,7 @@ public class Main {
     }
 
     /**
-     * Main method.
+     * Main method - operates as the "controller" in our architecture
      * @param args args can be empty.  If not empty, provide two parameters -- the first is a file name,
      * and the second is test (for test output, where all output to be directed to a String), or nothing.
      */
@@ -70,9 +70,9 @@ public class Main {
 
         /* Do not alter the code above for your submission. */
         /* Write your code below. */
-        
+
         // The world should start empty
-        
+
         String fullInput = null;
         String command;
         String[] user;
@@ -80,24 +80,24 @@ public class Main {
         int seedNum = 0;
         boolean invalidCommand = false;
         boolean exceptionLikeCommand = false;
-        
-        // DONE: Catch any exception in while loop body
+
+        // Any exception is caught in the loop body
         while(true){
-        	
+
         	try {
 	        	System.out.print("critters> ");
 	        	fullInput = kb.nextLine();
 	        	invalidCommand = false;
 	        	exceptionLikeCommand = false;
-	        	
+
 	        	/* Divides the input into parts and stores the results in an array.
-	    	     * The regex "\\s+" splits the input String using any whitespace 
-	    	     * character (the \\s part) as a delimiter. The '+' character is a 
+	    	     * The regex "\\s+" splits the input String using any whitespace
+	    	     * character (the \\s part) as a delimiter. The '+' character is a
 	    	     * quantifier for "one or more times".
 	    	     */
 	        	user = fullInput.split("\\s+");
 	        	command = user[0];
-	        	
+
 	        	if (command.equals("quit")) {
 	        		if (user.length == 1) {
 		        		// System.exit(0);
@@ -110,7 +110,7 @@ public class Main {
 	        			exceptionLikeCommand = true;
 	        		}
 	        	}
-	        	
+
 	        	else if (command.equals("show")) {
 	        		if (user.length == 1) {
 	        			Critter.displayWorld();
@@ -119,7 +119,7 @@ public class Main {
 	        			exceptionLikeCommand = true;
 	        		}
 	        	}
-	        	
+
 	        	else if (command.equals("step")) {
 	        		if (user.length == 1) {
 	        			Critter.worldTimeStep();
@@ -128,14 +128,13 @@ public class Main {
 	        			countNum = Integer.parseInt(user[1]);
 	        			for (int i = 0; i < countNum; i++) {
 	        				Critter.worldTimeStep();
-	        			}	
+	        			}
 	        		}
 	        		else {
 	        			exceptionLikeCommand = true;
 	        		}
 	        	}
-	        	
-	        	// TODO: Ask how to handle missing command arguments
+
 	        	else if (command.equals("seed")) {
 	        		if (user.length == 2) {
 	        			seedNum = Integer.parseInt(user[1]);
@@ -145,7 +144,7 @@ public class Main {
 	        			exceptionLikeCommand = true;
 	        		}
 	        	}
-	        	
+
 	        	else if (command.equals("make")) {
 	        		if (user.length == 2) {
 	        			String className = user[1];
@@ -162,16 +161,13 @@ public class Main {
 	        			exceptionLikeCommand = true;
 	        		}
 	        	}
-	        	
-	        	/* DONE: If subclass doesn't implement runStats, super's runStats 
-	        	 * gets invoked
-	        	 */
+
 	        	else if (command.equals("stats")) {
 	        		if (user.length == 2) {
 	        			Class<?> critterClass = null;
 	        			String className = user[1];		// Must be concrete (test in getInstances())
 	        			String fullName = myPackage + "." + className;
-	        			
+
 	        			critterClass = Class.forName(fullName);		// Step 1
 	        			List<Critter> critInstances = Critter.getInstances(className);	// Step 2
 	        			Class<?>[] types = {List.class};	// Step 3 (?)
@@ -180,17 +176,17 @@ public class Main {
 	        		}
 	        		else {
 	        			exceptionLikeCommand = true;
-	        		}	
+	        		}
 	        	}
-	        	
-	        	/* The else statement handles invalid commands and also the 
-	        	 * case when the user enters nothing. Something illegal is 
+
+	        	/* The else statement handles invalid commands and also the
+	        	 * case when the user enters nothing. Something illegal is
 	        	 * either "exception like" or "invalid", but not both.
 	        	 */
 	        	else{
 	        		invalidCommand = true;
 	        	}
-	        	
+
 	        	if (invalidCommand) {
 	        		System.out.println("invalid command: " + fullInput);
 	        	}
@@ -198,11 +194,11 @@ public class Main {
 	        		System.out.println("error processing: " + fullInput);
 	        	}
         	}
-        	
+
         	catch (Exception e) {
         		System.out.println("error processing: " + fullInput);
         	}
-        	
+
         }
 
         //System.out.println("GLHF");
